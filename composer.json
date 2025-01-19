@@ -16,6 +16,7 @@
 	"require-dev": {
 		"phpstan/phpstan": "^2.1",
 		"symfony/messenger": "^7.2",
-		"symfony/event-dispatcher": "^7.2"
+		"symfony/event-dispatcher": "^7.2",
+		"symfony/console": "^7.2"
 	}
 }
