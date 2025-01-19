@@ -1,0 +1,21 @@
+{
+	"name": "shredio/messenger",
+	"type": "library",
+	"license": "MIT",
+	"require": {
+		"php": ">=8.2"
+	},
+	"autoload": {
+		"psr-4": {
+			"Shredio\\Messenger\\": "src/"
+		}
+	},
+	"scripts": {
+		"phpstan": "phpstan analyse"
+	},
+	"require-dev": {
+		"phpstan/phpstan": "^2.1",
+		"symfony/messenger": "^7.2",
+		"symfony/event-dispatcher": "^7.2"
+	}
+}
