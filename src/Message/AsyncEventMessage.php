@@ -2,7 +2,7 @@
 
 namespace Shredio\Messenger\Message;
 
-interface AsyncEventMessage
+interface AsyncEventMessage extends EventMessage
 {
 
 }

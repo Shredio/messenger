@@ -2,7 +2,7 @@
 
 namespace Shredio\Messenger\Message;
 
-interface AsyncQueryMessage
+interface AsyncQueryMessage extends QueryMessage
 {
 
 }

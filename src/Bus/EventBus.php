@@ -2,7 +2,7 @@
 
 namespace Shredio\Messenger\Bus;
 
-final class EventBus extends Bus
+final class EventBus extends MessageBus
 {
 
 }

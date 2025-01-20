@@ -2,7 +2,7 @@
 
 namespace Shredio\Messenger\Message;
 
-interface AsyncCommandMessage
+interface AsyncCommandMessage extends CommandMessage
 {
 
 }

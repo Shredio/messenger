@@ -2,7 +2,7 @@
 
 namespace Shredio\Messenger\Bus;
 
-final class QueryBus extends Bus
+final class QueryBus extends MessageBus
 {
 
 }

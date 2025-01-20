@@ -7,11 +7,11 @@ use Symfony\Component\Messenger\Exception\ExceptionInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\StampInterface;
 
-abstract class Bus implements MessageBusInterface
+abstract class MessageBus
 {
 
 	public function __construct(
-		private readonly MessageBusInterface $bus,
+		public readonly MessageBusInterface $original,
 	)
 	{
 	}
@@ -26,7 +26,7 @@ abstract class Bus implements MessageBusInterface
 	 */
 	public function dispatch(object $message, array $stamps = []): Envelope
 	{
-		return $this->bus->dispatch($message, $stamps);
+		return $this->original->dispatch($message, $stamps);
 	}
 
 }

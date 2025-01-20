@@ -2,7 +2,10 @@
 
 namespace Shredio\Messenger\Message;
 
-interface SyncEventMessage extends EventMessage
+/**
+ * @internal
+ */
+interface RoutableMessage
 {
 
 }

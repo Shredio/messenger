@@ -2,7 +2,7 @@
 
 namespace Shredio\Messenger\Message;
 
-interface SyncCommandMessage
+interface SyncCommandMessage extends CommandMessage
 {
 
 }
