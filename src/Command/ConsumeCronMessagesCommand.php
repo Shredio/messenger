@@ -71,7 +71,7 @@ final class ConsumeCronMessagesCommand extends Command
 	{
 		$receivers = [];
 		$rateLimiters = [];
-		foreach ($receiverNames = $input->getArgument('receivers') as $receiverName) {
+		foreach ($input->getArgument('receivers') as $receiverName) {
 			if (!$this->receiverLocator->has($receiverName)) {
 				$message = sprintf('The receiver "%s" does not exist.', $receiverName);
 				if ($this->receiverNames) {
