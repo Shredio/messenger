@@ -21,11 +21,11 @@ final readonly class DiscardableMessageMiddleware implements MiddlewareInterface
 
 	public function handle(Envelope $envelope, StackInterface $stack): Envelope
 	{
-		$message = $envelope->getMessage();
-
 		try {
 			return $stack->next()->handle($envelope, $stack);
 		} catch (Throwable $throwable) {
+			$message = $envelope->getMessage();
+
 			if ($message instanceof DiscardableMessage) {
 				$this->logger?->critical('Error thrown while handling message {class} (Discardable message). Removing from transport. Error: "{error}"', ['class' => $message::class, 'error' => $throwable->getMessage(), 'exception' => $throwable]);
 
