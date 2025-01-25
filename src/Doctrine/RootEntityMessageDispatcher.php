@@ -57,6 +57,7 @@ final class RootEntityMessageDispatcher implements EventSubscriber
 		$uow = $em->getUnitOfWork();
 
 		// Insertions are in another event, because we need to know the ID
+		// onFlush is called before inserting entities to the database
 
 		foreach ($uow->getScheduledEntityUpdates() as $entity) {
 			$this->tryToDispatch($entity, $em, $bus, DoctrineEvent::Update, true);
