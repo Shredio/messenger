@@ -2,9 +2,6 @@
 
 namespace Shredio\Messenger\Message;
 
-/**
- * @internal Use AsyncEventMessage or SyncEventMessage
- */
 interface EventMessage extends RoutableMessage
 {
 

@@ -2,7 +2,7 @@
 
 namespace Shredio\Messenger\Message;
 
-interface SyncQueryMessage extends QueryMessage
+interface PrivateMessage
 {
 
 }

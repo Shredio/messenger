@@ -3,7 +3,7 @@
 namespace Shredio\Messenger\Doctrine;
 
 use Doctrine\ORM\PersistentCollection;
-use Shredio\Messenger\Bus\RoutableBus;
+use Shredio\Messenger\MessageDispatcher;
 
 final readonly class EntityMessageContext
 {
@@ -13,7 +13,7 @@ final readonly class EntityMessageContext
 	 */
 	public function __construct(
 		public object $object,
-		public RoutableBus $bus,
+		public MessageDispatcher $dispatcher,
 		public DoctrineEvent $event,
 		private ?array $changeSet = null,
 	)

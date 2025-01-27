@@ -7,6 +7,7 @@ use Shredio\Messenger\Message\CommandMessage;
 use Shredio\Messenger\Message\EventMessage;
 use Shredio\Messenger\Message\QueryMessage;
 use Shredio\Messenger\Message\RoutableMessage;
+use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Exception\ExceptionInterface;
 use Symfony\Component\Messenger\Stamp\StampInterface;
 
@@ -26,58 +27,18 @@ final readonly class DefaultRoutableBus implements RoutableBus
 	 *
 	 * @throws ExceptionInterface
 	 */
-	public function dispatch(RoutableMessage $message, array $stamps = []): void
+	public function dispatch(RoutableMessage $message, array $stamps = []): Envelope
 	{
 		if ($message instanceof EventMessage) {
-			$this->accessor->getEventBus()->dispatch($message, $stamps);
-
-			return;
+			return $this->accessor->getEventBus()->dispatch($message, $stamps);
 		}
 
 		if ($message instanceof CommandMessage) {
-			$this->accessor->getCommandBus()->dispatch($message, $stamps);
-
-			return;
+			return $this->accessor->getCommandBus()->dispatch($message, $stamps);
 		}
 
 		if ($message instanceof QueryMessage){
-			$this->accessor->getQueryBus()->dispatch($message, $stamps);
-
-			return;
-		}
-
-		self::throwInvalidType($message);
-	}
-
-	public static function getBusName(RoutableMessage $message): string
-	{
-		if ($message instanceof EventMessage) {
-			return 'event';
-		}
-
-		if ($message instanceof CommandMessage) {
-			return 'command';
-		}
-
-		if ($message instanceof QueryMessage) {
-			return 'query';
-		}
-
-		return 'unknown';
-	}
-
-	public function hasBusFor(RoutableMessage $message): bool
-	{
-		if ($message instanceof EventMessage) {
-			return $this->accessor->hasEventBus();
-		}
-
-		if ($message instanceof CommandMessage) {
-			return $this->accessor->hasCommandBus();
-		}
-
-		if ($message instanceof QueryMessage) {
-			return $this->accessor->hasQueryBus();
+			return $this->accessor->getQueryBus()->dispatch($message, $stamps);
 		}
 
 		self::throwInvalidType($message);

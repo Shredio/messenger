@@ -3,6 +3,7 @@
 namespace Shredio\Messenger\Bus;
 
 use Shredio\Messenger\Message\RoutableMessage;
+use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Exception\ExceptionInterface;
 use Symfony\Component\Messenger\Stamp\StampInterface;
 
@@ -16,8 +17,6 @@ interface RoutableBus
 	 *
 	 * @throws ExceptionInterface
 	 */
-	public function dispatch(RoutableMessage $message, array $stamps = []): void;
-
-	public function hasBusFor(RoutableMessage $message): bool;
+	public function dispatch(RoutableMessage $message, array $stamps = []): Envelope;
 
 }

@@ -2,9 +2,6 @@
 
 namespace Shredio\Messenger\Message;
 
-/**
- * @internal Use AsyncQueryMessage or SyncQueryMessage
- */
 interface QueryMessage extends RoutableMessage
 {
 

@@ -9,13 +9,14 @@ use Doctrine\ORM\Event\PostPersistEventArgs;
 use Doctrine\ORM\Events;
 use ReflectionClass;
 use RuntimeException;
-use Shredio\Messenger\Bus\LateRoutableBus;
-use Shredio\Messenger\Bus\RoutableBus;
+use Shredio\Messenger\Doctrine\Attribute\EntityMessageDispatcher as EntityMessageDispatcherAttribute;
+use Shredio\Messenger\LateMessageDispatcher;
+use Shredio\Messenger\MessageDispatcher;
 
 final class RootEntityMessageDispatcher implements EventSubscriber
 {
 
-	private ?LateRoutableBus $lateBus = null;
+	private ?LateMessageDispatcher $lateMessageDispatcher = null;
 
 	/** @var array<class-string, list<EntityMessageDispatcher>> */
 	private array $dispatchersCache = [];
@@ -25,7 +26,7 @@ final class RootEntityMessageDispatcher implements EventSubscriber
 	 */
 	public function __construct(
 		private readonly array $dispatchers,
-		private readonly RoutableBus $bus,
+		private MessageDispatcher $messageDispatcher,
 	)
 	{
 	}
@@ -44,14 +45,14 @@ final class RootEntityMessageDispatcher implements EventSubscriber
 		$this->tryToDispatch(
 			$event->getObject(),
 			$event->getObjectManager(),
-			$this->lateBus ?? throw new RuntimeException('Unexpected error, bus is not set'),
+			$this->lateMessageDispatcher ?? throw new RuntimeException('Unexpected error, late message dispatcher is not set'),
 			DoctrineEvent::Persist,
 		);
 	}
 
 	public function onFlush(OnFlushEventArgs $event): void
 	{
-		$this->lateBus = $bus = new LateRoutableBus($this->bus);
+		$this->lateMessageDispatcher = $dispatcher = new LateMessageDispatcher($this->messageDispatcher);
 
 		$em = $event->getObjectManager();
 		$uow = $em->getUnitOfWork();
@@ -60,17 +61,17 @@ final class RootEntityMessageDispatcher implements EventSubscriber
 		// onFlush is called before inserting entities to the database
 
 		foreach ($uow->getScheduledEntityUpdates() as $entity) {
-			$this->tryToDispatch($entity, $em, $bus, DoctrineEvent::Update, true);
+			$this->tryToDispatch($entity, $em, $dispatcher, DoctrineEvent::Update, true);
 		}
 
 		foreach ($uow->getScheduledEntityDeletions() as $entity) {
-			$this->tryToDispatch($entity, $em, $bus, DoctrineEvent::Remove);
+			$this->tryToDispatch($entity, $em, $dispatcher, DoctrineEvent::Remove);
 		}
 
 		// collections
 		foreach ($uow->getScheduledCollectionUpdates() as $collection) {
 			foreach ($collection as $entity) {
-				$this->tryToDispatch($entity, $em, $bus, DoctrineEvent::Update, true);
+				$this->tryToDispatch($entity, $em, $dispatcher, DoctrineEvent::Update, true);
 			}
 		}
 
@@ -84,7 +85,7 @@ final class RootEntityMessageDispatcher implements EventSubscriber
 
 			if ($em->getClassMetadata($owner::class)->isChangeTrackingDeferredImplicit() || $uow->isScheduledForDirtyCheck($owner)) {
 				foreach ($collection as $entity) {
-					$this->tryToDispatch($entity, $em, $bus, DoctrineEvent::Remove);
+					$this->tryToDispatch($entity, $em, $dispatcher, DoctrineEvent::Remove);
 				}
 			}
 		}
@@ -93,7 +94,7 @@ final class RootEntityMessageDispatcher implements EventSubscriber
 	private function tryToDispatch(
 		object $entity,
 		EntityManagerInterface $em,
-		RoutableBus $bus,
+		MessageDispatcher $dispatcher,
 		DoctrineEvent $event,
 		bool $includeChangeSet = false,
 	): void
@@ -106,7 +107,7 @@ final class RootEntityMessageDispatcher implements EventSubscriber
 
 		$context = new EntityMessageContext(
 			$entity,
-			$bus,
+			$dispatcher,
 			$event,
 			$includeChangeSet ? $em->getUnitOfWork()->getEntityChangeSet($entity) : null,
 		);
@@ -118,8 +119,8 @@ final class RootEntityMessageDispatcher implements EventSubscriber
 
 	public function postFlush(): void
 	{
-		$this->lateBus?->execute();
-		$this->lateBus = null;
+		$this->lateMessageDispatcher?->execute();
+		$this->lateMessageDispatcher = null;
 	}
 
 	/**
@@ -163,8 +164,8 @@ final class RootEntityMessageDispatcher implements EventSubscriber
 	{
 		$reflection = new ReflectionClass($className);
 
-		foreach ($reflection->getAttributes(MessageDispatcher::class) as $reflectionAttribute) {
-			/** @var MessageDispatcher $attribute */
+		foreach ($reflection->getAttributes(EntityMessageDispatcherAttribute::class) as $reflectionAttribute) {
+			/** @var EntityMessageDispatcherAttribute $attribute */
 			$attribute = $reflectionAttribute->newInstance();
 
 			yield new $attribute->dispatcher();
