@@ -5,6 +5,7 @@ namespace Shredio\Messenger\Middleware;
 use Psr\Log\LoggerInterface;
 use Shredio\Messenger\Message\DiscardableMessage;
 use Symfony\Component\Messenger\Envelope;
+use Symfony\Component\Messenger\Exception\NoHandlerForMessageException;
 use Symfony\Component\Messenger\Middleware\MiddlewareInterface;
 use Symfony\Component\Messenger\Middleware\StackInterface;
 use Symfony\Component\Messenger\Stamp\HandledStamp;
@@ -27,7 +28,17 @@ final readonly class DiscardableMessageMiddleware implements MiddlewareInterface
 			$message = $envelope->getMessage();
 
 			if ($message instanceof DiscardableMessage) {
-				$this->logger?->critical('Error thrown while handling message {class} (Discardable message). Removing from transport. Error: "{error}"', ['class' => $message::class, 'error' => $throwable->getMessage(), 'exception' => $throwable]);
+				if ($throwable instanceof NoHandlerForMessageException) {
+					$this->logger?->info(
+						'No handler found for discardable message {class}. Removing from transport.',
+						['class' => $message::class]
+					);
+				} else {
+					$this->logger?->critical(
+						'Error thrown while handling message {class} (Discardable message). Removing from transport. Error: "{error}"',
+						['class' => $message::class, 'error' => $throwable->getMessage(), 'exception' => $throwable]
+					);
+				}
 
 				return $envelope->with(new HandledStamp(null, 'discarded'));
 			}

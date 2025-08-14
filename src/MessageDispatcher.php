@@ -2,12 +2,15 @@
 
 namespace Shredio\Messenger;
 
-use Shredio\Messenger\Message\ConfigureMessage;
 use Shredio\Messenger\Message\RoutableMessage;
+use Symfony\Component\Messenger\Stamp\StampInterface;
 
 interface MessageDispatcher
 {
 
-	public function dispatch(RoutableMessage $message, ?ConfigureMessage $config = null): void;
+	/**
+	 * @param array<int, StampInterface> $stamps
+	 */
+	public function dispatch(RoutableMessage $message, array $stamps = []): void;
 
 }

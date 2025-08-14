@@ -2,13 +2,13 @@
 
 namespace Shredio\Messenger;
 
-use Shredio\Messenger\Message\ConfigureMessage;
 use Shredio\Messenger\Message\RoutableMessage;
+use Symfony\Component\Messenger\Stamp\StampInterface;
 
 final class LateMessageDispatcher implements MessageDispatcher
 {
 
-	/** @var array{RoutableMessage, ConfigureMessage|null}[] */
+	/** @var array{RoutableMessage, array<int, StampInterface>}[] */
 	private array $stack = [];
 
 	public function __construct(
@@ -17,15 +17,15 @@ final class LateMessageDispatcher implements MessageDispatcher
 	{
 	}
 
-	public function dispatch(RoutableMessage $message, ?ConfigureMessage $config = null): void
+	public function dispatch(RoutableMessage $message, array $stamps = []): void
 	{
-		$this->stack[] = [$message, $config];
+		$this->stack[] = [$message, $stamps];
 	}
 
 	public function execute(): void
 	{
-		foreach ($this->stack as [$message, $config]) {
-			$this->parent->dispatch($message, $config);
+		foreach ($this->stack as [$message, $stamps]) {
+			$this->parent->dispatch($message, $stamps);
 		}
 	}
 
